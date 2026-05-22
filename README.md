@@ -17,4 +17,14 @@ cd .. && /opt/anaconda3/envs/vmmr/bin/python app/app.py  # run app
 - `data/` — knowledge base
 - `models/` — saved weights (after training)
 
-Built by Marvin Ayala — Kean University AI
+## Dataset
+Training needs the Stanford Cars dataset (~1.9 GB), not tracked in this repo.
+Download it from [Kaggle](https://www.kaggle.com/datasets/jessicali9530/stanford-cars-dataset)
+and extract so the repo root contains:
+```
+archive/
+  car_devkit/
+  cars_test/
+  cars_train/
+```
+
