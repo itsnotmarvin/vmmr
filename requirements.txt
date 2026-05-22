@@ -1,0 +1,14 @@
+torch
+torchvision
+torchaudio
+gradio
+huggingface_hub
+opencv-python-headless
+numpy
+Pillow
+pandas
+scikit-learn
+matplotlib
+seaborn
+tqdm
+scipy
