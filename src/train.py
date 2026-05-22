@@ -17,12 +17,6 @@ EPOCHS_S2  = 20
 LR_S1      = 1e-3
 LR_S2      = 1e-4
 
-def find_dataset(start_path):
-    for root, dirs, files in os.walk(start_path):
-        if 'train' in dirs and 'test' in dirs:
-            return os.path.join(root, 'train'), os.path.join(root, 'test')
-    return None, None
-
 def run_epoch(model, loader, criterion, optimizer=None):
     training = optimizer is not None
     model.train() if training else model.eval()
@@ -39,20 +33,21 @@ def run_epoch(model, loader, criterion, optimizer=None):
             total_loss += loss.item() * images.size(0)
             correct    += outputs.argmax(1).eq(labels).sum().item()
             total      += images.size(0)
-    torch.mps.empty_cache()
+    if DEVICE.type == 'mps':
+        torch.mps.empty_cache()
     return total_loss / total, correct / total
 
 def train():
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    train_dir, test_dir = find_dataset(project_root)
-    if train_dir is None:
-        train_dir, test_dir = find_dataset(os.path.expanduser('~/Downloads'))
-    if train_dir is None:
-        print("Dataset not found.")
+    archive_dir  = os.path.join(project_root, 'archive')
+    try:
+        train_loader, test_loader, class_names = get_dataloaders(archive_dir, BATCH_SIZE)
+    except FileNotFoundError as e:
+        print(e)
         return
 
-    print(f"Found data at: {train_dir}")
-    train_loader, test_loader, class_names = get_dataloaders(train_dir, test_dir, BATCH_SIZE)
+    print(f"Loaded {len(train_loader.dataset)} train / {len(test_loader.dataset)} val "
+          f"images across {len(class_names)} classes on {DEVICE}")
 
     model      = get_model(num_classes=len(class_names), freeze_backbone=True).to(DEVICE)
     criterion  = nn.CrossEntropyLoss(label_smoothing=0.1)

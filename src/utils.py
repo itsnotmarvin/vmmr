@@ -4,7 +4,7 @@ def load_knowledge_base(path='data/car_knowledge.json'):
     try:
         with open(path) as f:
             return json.load(f)
-    except:
+    except (FileNotFoundError, json.JSONDecodeError):
         return {}
 
 def get_car_info(class_name, kb):
