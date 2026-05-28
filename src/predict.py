@@ -11,10 +11,13 @@ val_tfm = transforms.Compose([
 def load_model(path):
     device = torch.device('mps' if torch.backends.mps.is_available() else 'cpu')
     ckpt   = torch.load(path, map_location=device)
-    model  = get_model(num_classes=196).to(device)
+    class_names = ckpt['class_names']
+    # Derive class count from the checkpoint instead of hardcoding 196, so the
+    # app works with any dataset (e.g. retraining on a larger model catalog).
+    model  = get_model(num_classes=len(class_names)).to(device)
     model.load_state_dict(ckpt['model_state_dict'])
     model.eval()
-    return model, ckpt['class_names'], device
+    return model, class_names, device
 
 def predict(pil_image, model, class_names, device, top_k=5):
     tensor = val_tfm(pil_image).unsqueeze(0).to(device)

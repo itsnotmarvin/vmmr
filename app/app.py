@@ -53,12 +53,22 @@ def analyse_car(image):
     verdict = info.get('verdict', '')
     issues  = info.get('common_issues', [])
     checks  = info.get('what_to_check', [])
+    reddit  = info.get('reddit_communities', [])
+    exps    = info.get('real_experiences', [])
 
     score_color  = '#22C55E' if isinstance(score, (int,float)) and score >= 8 else '#F5A623' if isinstance(score, (int,float)) and score >= 6 else '#EF4444'
     cost_display = f'${cost:,}/yr' if isinstance(cost, (int,float)) else str(cost)
 
     issues_html = ''.join([f'<div style="display:flex;gap:10px;margin-bottom:10px"><span style="color:#EF4444;flex-shrink:0">></span><span style="color:#888880;font-size:13px;line-height:1.5">{i}</span></div>' for i in issues])
     checks_html = ''.join([f'<div style="display:flex;gap:10px;margin-bottom:10px"><span style="color:#F5620F;flex-shrink:0">-></span><span style="color:#888880;font-size:13px;line-height:1.5">{c}</span></div>' for c in checks])
+
+    reddit_html = ''.join([
+        f'<a href="https://www.reddit.com/{sub.lstrip("/")}" target="_blank" '
+        f'style="text-decoration:none;display:inline-block;background:#1a1a1a;border:1px solid #333;'
+        f'border-radius:999px;padding:5px 12px;margin:0 6px 6px 0;color:#F5620F;font-size:12px;'
+        f'font-family:\'DM Mono\',monospace">{sub}</a>'
+        for sub in reddit]) or '<span style="color:#555;font-size:13px">No communities listed.</span>'
+    exps_html = ''.join([f'<div style="display:flex;gap:10px;margin-bottom:10px"><span style="color:#22C55E;flex-shrink:0">"</span><span style="color:#888880;font-size:13px;line-height:1.5">{e}</span></div>' for e in exps])
 
     info_html = f'''
     <div style="font-family:\'Bebas Neue\',sans-serif;letter-spacing:1px;font-size:13px;color:#F5620F;margin-bottom:16px;text-transform:uppercase">Vehicle Profile — {top_label}</div>
@@ -86,9 +96,19 @@ def analyse_car(image):
             {checks_html}
         </div>
     </div>
-    <div style="background:rgba(245,98,15,0.06);border:1px solid rgba(245,98,15,0.15);border-radius:10px;padding:16px">
+    <div style="background:rgba(245,98,15,0.06);border:1px solid rgba(245,98,15,0.15);border-radius:10px;padding:16px;margin-bottom:16px">
         <div style="font-size:10px;color:#F5620F;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Verdict</div>
         <div style="color:#F0EDE8;font-size:14px;line-height:1.6">{verdict}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div style="background:#1a1a1a;border:1px solid #222;border-radius:10px;padding:16px">
+            <div style="font-size:10px;color:#22C55E;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">Owner Experiences</div>
+            {exps_html}
+        </div>
+        <div style="background:#1a1a1a;border:1px solid #222;border-radius:10px;padding:16px">
+            <div style="font-size:10px;color:#F5620F;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px">Reddit Communities</div>
+            {reddit_html}
+        </div>
     </div>'''
 
     return overlay, pred_html, info_html
